@@ -59,3 +59,6 @@ def make_michelson(parsed_resp_list):
     # for (list (pair string string))
     pairs = "; ".join([f'(Pair "{tup[1][0]}" "{tup[1][1]}")' for tup in parsed_resp_list[:100]])
     return f"{{ {pairs} }}"
+
+def make_string_pairs(parsed_resp_list):
+    return [[tup[1][0],tup[1][1]] for tup in parsed_resp_list[:100]]

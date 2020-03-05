@@ -4,22 +4,23 @@ from flask import Flask
 from pytezos import pytezos, Key
 import atexit, base64, os, tempfile
 
-import api
+from . import api
 
-oracle_address = os.environ.get('ORACLE_ADDRESS', "")
-key = os.environ.get('TEZOS_USER_KEY', "")
+oracle_address = os.environ.get('ORACLE_ADDRESS', "KT1Vo54qGMmuxpPqoNPCkNWsq7Yiy4P9PQG4")
+key = os.environ.get('TEZOS_USER_KEY', "edsk3gUfUPyBSfrS9CCgmCiQsTCHGkviBDusMxDJstFtojtc1zcpsh")
 
-tezos_user_key = None
-with tempfile.NamedTemporaryFile(suffix='.json', delete=False) as key_file:
-    key_file.write(base64.standard_b64decode(key))
-    key_file.close()
-    tezos_user_key = Key.from_faucet(key_file.name)
-    os.remove(key_file.name)
+tezos_user_key = key
+# with tempfile.NamedTemporaryFile(suffix='.json', delete=False) as key_file:
+#     key_file.write(base64.standard_b64decode(key))
+#     key_file.close()
+#     tezos_user_key = Key.from_faucet(key_file.name)
+#     os.remove(key_file.name)
 
 class OracleServer:
     def __init__(self, tezos_key=tezos_user_key, oracle_contract_address=oracle_address):
         self.oracle_contract_address = oracle_contract_address
-        self.pytezos_instance = pytezos.using(key=tezos_key, shell='babylonnet')
+        self.pytezos_instance = pytezos.using(shell='http://localhost:18731', key='edsk3gUfUPyBSfrS9CCgmCiQsTCHGkviBDusMxDJstFtojtc1zcpsh')
+        # pytezos.using(key=tezos_key, shell='babylonnet')
 
     def oracle_contract(self):
         return self.pytezos_instance.contract(self.oracle_contract_address)
@@ -27,8 +28,9 @@ class OracleServer:
     def update_value(self):
         try:
             now_utc = datetime.now(tz=timezone.utc)
-            data = api.make_michelson(api.fetch_and_parse_price_data())
-            operation_group = self.oracle_contract().update_value(value_timestamp=now_utc, value=data).operation_group
+            data = api.make_string_pairs(api.fetch_and_parse_price_data())
+            print(data)
+            operation_group = self.oracle_contract().update_value(data).operation_group
             operation_str = f"<p> Last operation:\n{operation_group.autofill().sign().inject()} </p>"
             storage_str = f"<p> Current storage:\n{self.oracle_contract().storage()} </p>"
             return (operation_str + storage_str)

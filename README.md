@@ -33,3 +33,4 @@ For list of (identity, value)
 ```
 $ stack exec -- lorentz-contract-oracle Oracle print --valueType "(list (pair string string))" --oneline
 ```
+
