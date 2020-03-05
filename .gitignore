@@ -1,2 +1,4 @@
 .env
-env-config.sh
+env_config.py
+*.pyc
+__pycache__

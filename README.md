@@ -27,3 +27,9 @@ Now you can install requirements without polluting your global python dependenci
 
 ### Environment Variables
 
+## Oracle Contract 
+
+For list of (identity, value)
+```
+$ stack exec -- lorentz-contract-oracle Oracle print --valueType "(list (pair string string))" --oneline
+```
