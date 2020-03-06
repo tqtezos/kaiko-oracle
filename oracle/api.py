@@ -1,9 +1,16 @@
 import requests
 import os
+from datetime import datetime, timedelta
 
 API_KEY = os.environ.get("API_KEY")
 
-# See API documentation https://docs.kaiko.com/#spot-price
+def head(lst):
+    try: 
+        return lst[0]
+    except IndexError:
+        return None
+
+# See API documentation https://docs.kaiko.com/#recent-vwap-alpha-release
 def get_request_headers():
     return {
             'Accept': "application/json",
@@ -11,30 +18,35 @@ def get_request_headers():
         }
 
 
-def get_params(cont_token=None):
-    # For first request (i.e,, no cont_token), include page_size; subsequent requests have
-    # page_size encoded in continuation token
-    return {"continuation_token": cont_token} if cont_token else {'page_size': 1000}
-
-
-def make_request(cont_token=None):
+def make_request(instrument, exchange="krkn", cont_token=None):
+    # Passing params in url instead of param dict to keep start_time from url encoding
+    # as recommended by author of requests lib :/ https://stackoverflow.com/a/23497903
+    start_time = (datetime.utcnow().replace(microsecond=0) - timedelta(days=30)).isoformat() + "Z"
+    
     return requests.get(
-        "https://us.market-api.kaiko.io/v1/data/trades.v1/exchanges/spots/recent",
-        headers=get_request_headers(),
-        params=get_params(cont_token)
+        f"https://us.market-api.kaiko.io/v1/data/trades.v1/exchanges/{exchange}/spot/{instrument}/aggregations/vwap?interval=1m&start_time={start_time}",
+        headers=get_request_headers()
     )
 
 def get_price(data): 
-    return (data.get('data', {}).get('exchange'), (data.get('data', {}).get('instrument'), data.get('data', {}).get('price')))
+    return (data.get('data', {}).get('exchange'), (data.get('data', {}).get('instrument'), data.get('data', {}).get('price'), data.get('data')))
 
 
 def parse_responses(responses):
-    return [
-        get_price(datum) 
-            for resp in responses
-            for datum in resp.get('data', []) 
-            if datum.get('result') == 'success'
-        ]
+    return {
+        resp.get('query', {}).get('instrument'): (
+            resp.get('query', {}).get('exchange'), 
+            (head(resp.get('data', [])) or {}).get('timestamp'), 
+            (head(resp.get('data', [])) or {}).get('price')
+            )
+        for resp in responses
+    }
+    # return [
+    #     (resp.get('query', {}).get('') get_price(datum) 
+    #         for resp in responses
+    #         for datum in resp.get('data', []) 
+    #         if resp.get('result') == 'success'
+    #     ]
 
 
 def make_resp_dict(resp_lst):
@@ -46,12 +58,11 @@ def make_resp_dict(resp_lst):
 
 def fetch_and_parse_price_data():
     """"""
-    response = make_request()
-    resp_list = [response.json()]
-    while response.json().get('continuation_token'):
-        response = make_request(response.json().get('continuation_token'))
+    resp_list = []
+    for instrument in ['xtz-usd', 'xtz-btc']:
+        response = make_request(instrument)
         resp_list.append(response.json())
-    # return make_resp_dict(parse_responses(resp_list))
+        # return make_resp_dict(parse_responses(resp_list))
     return parse_responses(resp_list)
 
 
@@ -61,4 +72,4 @@ def make_michelson(parsed_resp_list):
     return f"{{ {pairs} }}"
 
 def make_string_pairs(parsed_resp_list):
-    return [[tup[1][0],tup[1][1]] for tup in parsed_resp_list[:100]]
+    return [[tup[1][0],tup[1][1]] for tup in parsed_resp_list]

@@ -54,8 +54,8 @@ app = Flask(__name__)
 def index():
     return update_oracle(), 200
 
-oracle_update_scheduler = BackgroundScheduler()
-oracle_update_scheduler.add_job(func=update_oracle, trigger="interval", seconds=30)
-oracle_update_scheduler.start()
-atexit.register(lambda: oracle_update_scheduler.shutdown())
+# oracle_update_scheduler = BackgroundScheduler()
+# oracle_update_scheduler.add_job(func=update_oracle, trigger="interval", seconds=30)
+# oracle_update_scheduler.start()
+# atexit.register(lambda: oracle_update_scheduler.shutdown())
 
