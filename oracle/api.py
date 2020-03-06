@@ -1,6 +1,8 @@
 import requests
 import os
 from datetime import datetime, timedelta
+from decimal import Decimal
+
 
 API_KEY = os.environ.get("API_KEY")
 
@@ -28,15 +30,26 @@ def make_request(instrument, exchange="krkn", cont_token=None):
         headers=get_request_headers()
     )
 
-def get_price(data): 
-    return (data.get('data', {}).get('exchange'), (data.get('data', {}).get('instrument'), data.get('data', {}).get('price'), data.get('data')))
+def btc_to_satoshi(btc):
+    return int(Decimal(btc).shift(8).to_integral())
+
+
+def usd_to_usc(usd):
+    return int(Decimal(usd).shift(2).to_integral())
+
+
+def parse_price(resp):
+    raw_price = (head(resp.get('data', [])) or {}).get('price')
+    return btc_to_satoshi(raw_price) \
+        if resp.get('query', {}).get('instrument') == "xtz-btc" \
+        else usd_to_usc(raw_price)
 
 
 def parse_responses(responses):
     return {
         resp.get('query', {}).get('instrument'): [
             (head(resp.get('data', [])) or {}).get('timestamp'), 
-            (head(resp.get('data', [])) or {}).get('price')
+            parse_price(resp)
         ]
         for resp in responses
     }
