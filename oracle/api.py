@@ -31,15 +31,16 @@ def make_request(instrument, exchange="krkn", cont_token=None):
     )
 
 def btc_to_satoshi(btc):
-    return int(Decimal(btc).shift(8).to_integral())
+    return int(Decimal(btc[:25]).shift(8).to_integral())
 
 
 def usd_to_usc(usd):
-    return int(Decimal(usd).shift(2).to_integral())
+    return int(Decimal(usd[:25]).shift(2).to_integral())
 
 
 def parse_price(resp):
     raw_price = (head(resp.get('data', [])) or {}).get('price')
+    print(resp.get('query', {}).get('instrument'), raw_price)
     return btc_to_satoshi(raw_price) \
         if resp.get('query', {}).get('instrument') == "xtz-btc" \
         else usd_to_usc(raw_price)
