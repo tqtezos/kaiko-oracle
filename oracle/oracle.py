@@ -6,7 +6,7 @@ import atexit, base64, os, tempfile
 
 from . import api
 
-oracle_address = os.environ.get('ORACLE_ADDRESS', "KT1Vo54qGMmuxpPqoNPCkNWsq7Yiy4P9PQG4")
+oracle_address = os.environ.get('ORACLE_ADDRESS', "KT1DuGhmV7dUK5MCPrGVDMPDnco5BvmuB4Sm")
 key = os.environ.get('TEZOS_USER_KEY', "edsk3gUfUPyBSfrS9CCgmCiQsTCHGkviBDusMxDJstFtojtc1zcpsh")
 
 tezos_user_key = key
@@ -27,9 +27,11 @@ class OracleServer:
 
     def update_value(self):
         try:
-            now_utc = datetime.now(tz=timezone.utc)
-            data = api.make_string_pairs(api.fetch_and_parse_price_data())
+            
+            # data = api.make_string_pairs(api.fetch_and_parse_price_data())
+            data = api.fetch_and_parse_price_data()
             print(data)
+            import pdb; pdb.set_trace()
             operation_group = self.oracle_contract().update_value(data).operation_group
             operation_str = f"<p> Last operation:\n{operation_group.autofill().sign().inject()} </p>"
             storage_str = f"<p> Current storage:\n{self.oracle_contract().storage()} </p>"

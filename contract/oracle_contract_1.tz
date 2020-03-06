@@ -1,5 +1,5 @@
 parameter (or (pair :get_value (unit %unit) 
-                               (contract %callback_contract (list (pair string string)))) 
-              (or (list %update_value (pair string string)) 
+                               (contract %callback_contract (map string (pair timestamp string)))) 
+              (or (map %update_value string (pair timestamp string)) 
                   (address %update_admin)));
-storage (pair (list (pair string string)) address);code { DUP;CAR;DIP { CDR };IF_LEFT { DUP;CAR;DIP { CDR };DIP { DIP { DUP };SWAP };PAIR;CDR;CAR;DIP { AMOUNT };TRANSFER_TOKENS;NIL operation;SWAP;CONS;PAIR }        { IF_LEFT { DIP { DUP;CAR;DIP { CDR } };DIP { DROP;DUP;DIP { SENDER;COMPARE;EQ;IF {  }   { PUSH string "only admin may update";FAILWITH } } };PAIR;NIL operation;PAIR }        { DIP { DUP;CAR;DIP { CDR };DIP { SENDER;COMPARE;EQ;IF {  }   { PUSH string "only admin may update";FAILWITH } } };SWAP;PAIR;NIL operation;PAIR } } };
+storage (pair (map string (pair timestamp string)) address);code { DUP;CAR;DIP { CDR };IF_LEFT { DUP;CAR;DIP { CDR };DIP { DIP { DUP };SWAP };PAIR;CDR;CAR;DIP { AMOUNT };TRANSFER_TOKENS;NIL operation;SWAP;CONS;PAIR }        { IF_LEFT { DIP { DUP;CAR;DIP { CDR } };DIP { DROP;DUP;DIP { SENDER;COMPARE;EQ;IF {  }   { PUSH string "only admin may update";FAILWITH } } };PAIR;NIL operation;PAIR }        { DIP { DUP;CAR;DIP { CDR };DIP { SENDER;COMPARE;EQ;IF {  }   { PUSH string "only admin may update";FAILWITH } } };SWAP;PAIR;NIL operation;PAIR } } };
