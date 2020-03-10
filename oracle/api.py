@@ -6,11 +6,12 @@ from decimal import Decimal
 
 API_KEY = os.environ.get("API_KEY")
 
-def head(lst):
+def tail(lst):
     try: 
-        return lst[0]
+        return lst[-1]
     except IndexError:
         return None
+
 
 # See API documentation https://docs.kaiko.com/#recent-vwap-alpha-release
 def get_request_headers():
@@ -20,15 +21,16 @@ def get_request_headers():
         }
 
 
-def make_request(instrument, exchange="krkn", cont_token=None):
+def make_request(instrument, exchange, cont_token=None):
     # Passing params in url instead of param dict to keep start_time from url encoding
     # as recommended by author of requests lib :/ https://stackoverflow.com/a/23497903
-    start_time = (datetime.utcnow().replace(microsecond=0) - timedelta(days=30)).isoformat() + "Z"
+    start_time = (datetime.utcnow().replace(microsecond=0) - timedelta(hours=1)).isoformat() + "Z"
     
     return requests.get(
-        f"https://us.market-api.kaiko.io/v1/data/trades.v1/exchanges/{exchange}/spot/{instrument}/aggregations/vwap?interval=1m&start_time={start_time}",
+        f"https://us.market-api.kaiko.io/v1/data/trades.v1/exchanges/{exchange}/spot/{instrument}/aggregations/vwap?interval=1m&start_time={start_time}&page_size=1000",
         headers=get_request_headers()
     )
+
 
 def btc_to_satoshi(btc):
     return int(Decimal(btc[:25]).shift(8).to_integral())
@@ -38,28 +40,31 @@ def usd_to_usc(usd):
     return int(Decimal(usd[:25]).shift(2).to_integral())
 
 
-def parse_price(resp):
-    raw_price = (head(resp.get('data', [])) or {}).get('price')
-    print(resp.get('query', {}).get('instrument'), raw_price)
-    return btc_to_satoshi(raw_price) \
-        if resp.get('query', {}).get('instrument') == "xtz-btc" \
-        else usd_to_usc(raw_price)
+def raw_to_int(raw_price):
+    return int(Decimal(raw_price[:25]).to_integral())
 
 
-def parse_responses(responses):
+def convert_price(raw_price, instrument):
     return {
-        resp.get('query', {}).get('instrument'): [
-            (head(resp.get('data', [])) or {}).get('timestamp'), 
+        'xtz-btc': btc_to_satoshi(raw_price),
+        'xtz-usd': usd_to_usc(raw_price),
+    }.get(instrument, raw_to_int(raw_price))
+
+
+def parse_price(resp):
+    raw_price = (tail(resp.get('data', [])) or {}).get('price')
+    print(resp.get('query', {}).get('instrument'), raw_price)
+    return convert_price(raw_price, resp.get('query', {}).get('instrument'))
+
+
+def parse_response(resp):
+    return [
+            (tail(resp.get('data', [])) or {}).get('timestamp'), 
             parse_price(resp)
         ]
-        for resp in responses
-    }
 
 
-def fetch_and_parse_price_data():
+def fetch_and_parse_price_data(instrument, exchange="krkn"):
     """"""
-    resp_list = []
-    for instrument in sorted(['xtz-btc', 'xtz-usd']):
-        response = make_request(instrument)
-        resp_list.append(response.json())
-    return parse_responses(resp_list)
+    response = make_request(instrument, exchange)
+    return parse_response(response.json())
