@@ -1,5 +1,7 @@
 
 
+# Kaiko API Oracle Feed
+
 ## Run locally
 ### Requirements
 [Python3.7](https://realpython.com/installing-python/)
@@ -7,6 +9,8 @@
 [Docker](https://docs.docker.com/install/)
 
 PyTezos requires some libraries pre-installed. See [their quickstart](https://baking-bad.github.io/pytezos/#requirements) for instructions.
+
+[Kaiko API Key](https://www.kaiko.com/)
 
 ### Install Python Requirements
 Create a virtual python environment and activate it. 
@@ -43,3 +47,42 @@ This contract was created using [`lorentz-contract-oracle`](https://github.com/t
 $ stack exec -- lorentz-contract-oracle Oracle print --valueType "(pair timestamp nat)" --oneline
 ```
 
+To create a contract on your local sandbox, you can use `lorentz-contract-oracle`, replacing \[bracketed values\] with your own:
+```
+$ tezos-client --wait none originate contract BTCXTZ transferring 0 from "[public key]" running "$(<[path/to/repo]/contract/oracle_contract.tz)\" --init "$(stack exec -- lorentz-contract-oracle Oracle init --initialValueType "(pair timestamp nat)" --initialValue "(Pair 0 0)" --admin \"[public key]\")" --burn-cap 0.712
+```
+
+Save the KT1 contract address generated in your env file as `ORACLE_ADDRESS=KT1...`
+
+### Start Flask App
+
+With env file created, you can start the flask app as follows:
+
+```
+(.env)$ export $(xargs <env)
+(.env)$ flask run
+```
+
+The server should start, and you can make individual requests for oracle updates by hitting `localhost:5000`. A task that updates the oracle contract every 60 seconds with API data will also start. 
+
+### Docker
+
+Build
+
+```bash
+docker build -t kaiko-oracle:latest .
+```
+
+Run:
+
+```bash
+docker run -d -p 5000:5000 --env-file=[your-env-file] kaiko-oracle
+```
+
+Build and run:
+
+```bash
+docker build -t kaiko-oracle:latest . && docker run --rm -it -p 5000:5000 --env-file=[your-env-file] kaiko-oracle
+```
+
+For Mainnet deployments, you may want to think about using something more secure than environment variables for your secret keys. Docker swarm provides secrets that cannot be revealed inadvertently by logging the environment. https://docs.docker.com/engine/swarm/secrets/
