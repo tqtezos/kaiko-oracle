@@ -1,3 +1,4 @@
+import json
 from pytezos import pytezos, Key
 
 class OracleServer:
@@ -11,8 +12,9 @@ class OracleServer:
     def update_value(self, data):
         try:
             operation_group = self.oracle_contract().update_value(data).operation_group
-            operation_str = operation_group.autofill().sign().inject()
+            operation_str = json.dumps(operation_group.autofill().sign().inject(), indent=4)
             storage_str = self.oracle_contract().storage()
+
             return f"Last operation: {operation_str}\n\nPrevious storage: {storage_str}\n"
         except Exception as e:
             exception_doc = f"Exception: {str(e.__doc__)}"

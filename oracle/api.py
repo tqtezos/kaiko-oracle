@@ -53,7 +53,6 @@ def convert_price(raw_price, instrument):
 
 def parse_price(resp):
     raw_price = (tail(resp.get('data', [])) or {}).get('price')
-    print(resp.get('query', {}).get('instrument'), raw_price)
     return convert_price(raw_price, resp.get('query', {}).get('instrument'))
 
 
