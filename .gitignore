@@ -1,5 +1,6 @@
 .env
-env_config.py
+env-btc
+env-usd
 *.pyc
 __pycache__
 .vscode

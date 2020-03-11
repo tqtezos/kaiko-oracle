@@ -12,25 +12,25 @@ PyTezos requires some libraries pre-installed. See [their quickstart](https://ba
 Create a virtual python environment and activate it. 
 ```
 ? mkdir .env 
-? python3 -m venv .env/kaiko-env
-? source .env/kaiko-env/bin/activate
+? python3 -m venv .env
+? source .env/bin/activate
 
-(kaiko-env) ? which pip 
-/kaiko/.env/kaiko/bin/pip
+(.env) ? which pip 
+/kaiko/.env/bin/pip
 ```
 
-Now you can install requirements without polluting your global python dependencies.Use `source .env/kaiko-env/bin activate` to activate the environment every time you want to use the repo locally. To leave the environment, use `deactivate`. 
+Now you can install requirements without polluting your global python dependencies.Use `source .env/bin activate` to activate the environment every time you want to use the repo locally. To leave the environment, use `deactivate`. 
 
 ```
-(kaiko-env) ? pip install -r requirements.txt
+(.env) ? pip install -r requirements.txt
 ```
 
 ### Environment Variables
 
 ## Oracle Contract 
 
-For list of (identity, value)
+
 ```
-$ stack exec -- lorentz-contract-oracle Oracle print --valueType "(list (pair string string))" --oneline
+$ stack exec -- lorentz-contract-oracle Oracle print --valueType "(pair timestamp nat)" --oneline
 ```
 
