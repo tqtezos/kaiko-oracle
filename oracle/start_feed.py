@@ -33,7 +33,7 @@ class Feed:
     def start_feed(self):
         oracle_update_scheduler = BackgroundScheduler()
         oracle_update_scheduler.start()
-        oracle_update_scheduler.add_job(func=self.update_oracle, trigger="interval", seconds=60)
+        oracle_update_scheduler.add_job(func=self.update_oracle, trigger="interval", seconds=10)
         atexit.register(lambda: oracle_update_scheduler.shutdown())
 
 feed = Feed(key, oracle_address, instrument, env)

@@ -15,7 +15,6 @@ PyTezos requires some libraries pre-installed. See [their quickstart](https://ba
 ### Install Python Requirements
 Create a virtual python environment and activate it. 
 ```
-? mkdir .env 
 ? python3 -m venv .env
 ? source .env/bin/activate
 

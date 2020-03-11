@@ -2,5 +2,5 @@ API_KEY=my-kaiko-api-key
 ORACLE_ADDRESS=KT1-etc
 TEZOS_USER_KEY=my-secret-key
 INSTRUMENT=xtz-usd
-ENV=babylonnet
+ENV=carthagenet
 FLASK_APP=oracle/start_feed.py
