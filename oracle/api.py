@@ -25,9 +25,10 @@ def make_request(instrument, exchange, cont_token=None):
     # Passing params in url instead of param dict to keep start_time from url encoding
     # as recommended by author of requests lib :/ https://stackoverflow.com/a/23497903
     start_time = (datetime.utcnow().replace(microsecond=0) - timedelta(hours=1)).isoformat() + "Z"
-    
+    url = f"https://us.market-api.kaiko.io/v1/data/trades.v1/exchanges/{exchange}/spot/{instrument}/aggregations/vwap?interval=1m&start_time={start_time}&page_size=1000"
+    print(url)
     return requests.get(
-        f"https://us.market-api.kaiko.io/v1/data/trades.v1/exchanges/{exchange}/spot/{instrument}/aggregations/vwap?interval=1m&start_time={start_time}&page_size=1000",
+        url,
         headers=get_request_headers()
     )
 

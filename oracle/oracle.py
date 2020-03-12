@@ -12,10 +12,10 @@ class OracleServer:
     def update_value(self, data):
         try:
             operation_group = self.oracle_contract().update_value(data).operation_group
-            operation_str = json.dumps(operation_group.autofill().sign().inject(), indent=4)
-            storage_str = self.oracle_contract().storage()
+            operation_res = operation_group.autofill().sign().inject()
+            storage = self.oracle_contract().storage()
 
-            return f"Last operation: {operation_str}\n\nPrevious storage: {storage_str}\n"
+            return (operation_res, storage)
         except Exception as e:
             exception_doc = f"Exception: {str(e.__doc__)}"
             exception_message = None
