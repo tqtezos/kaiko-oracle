@@ -54,7 +54,10 @@ def convert_price(raw_price, instrument):
 
 def parse_price(resp):
     raw_price = (tail(resp.get('data', [])) or {}).get('price')
-    return convert_price(raw_price, resp.get('query', {}).get('instrument'))
+    return (
+        convert_price(raw_price, resp.get('query', {}).get('instrument'))
+            if raw_price is not None
+            else raw_price)
 
 
 def parse_response(resp):

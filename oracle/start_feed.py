@@ -6,8 +6,8 @@ import datetime
 import json
 from time import sleep
 
-from .oracle import OracleServer
-from . import api
+from oracle.oracle import OracleServer
+from oracle import api
 
 oracle_address = os.environ.get('ORACLE_ADDRESS')
 key = os.environ.get('TEZOS_USER_KEY')
@@ -22,12 +22,10 @@ class Feed:
                 oracle_contract_address=contract_address, 
                 environment=env
             )
-        self.last_value = [None, None]
 
-    def update_oracle(self, in_browser=False):
+    def update_oracle(self):
         """Fetch and parse data and update Oracle contract"""
         try:
-            import pdb; pdb.set_trace()
             data = api.fetch_and_parse_price_data(self.instrument)
             result = self.oracle.update_value(data)
             return result
@@ -40,7 +38,7 @@ class Feed:
                 exception_message = f"(unknown message: {e.__class__.__name__})"
             return (exception_doc + exception_message)
 
-    def pretty_print_result(self, operation_res, storage, in_browser=False):
+    def pretty_print_result(self, operation_res, storage="", in_browser=False):
         op_str = f"Last operation: {json.dumps(operation_res, indent=4)}\n\nPrevious storage: {storage}\n"
         result_str = (f"\nFeed: {self.instrument}\nTimestamp: {datetime.datetime.utcnow().isoformat()} \nResult: {op_str}\n")
         print(result_str)
