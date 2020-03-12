@@ -60,9 +60,13 @@ def parse_price(resp):
             else raw_price)
 
 
+def convert_ts(timestamp):
+    return None if timestamp is None else datetime.datetime.fromtimestamp(int(timestamp / 1000)).isoformat()
+
+
 def parse_response(resp):
     return [
-            (tail(resp.get('data', [])) or {}).get('timestamp'), 
+            convert_ts((tail(resp.get('data', [])) or {}).get('timestamp')), 
             parse_price(resp)
         ]
 

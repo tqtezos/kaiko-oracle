@@ -23,11 +23,12 @@ class Feed:
                 environment=env
             )
 
-    def update_oracle(self):
+    def update_oracle(self, in_browser=False):
         """Fetch and parse data and update Oracle contract"""
         try:
             data = api.fetch_and_parse_price_data(self.instrument)
             result = self.oracle.update_value(data)
+            print(self.pretty_print_result(*result, in_browser))
             return result
         except Exception as e:
             exception_doc = f"Exception: {str(e.__doc__)}"
@@ -36,12 +37,12 @@ class Feed:
                 exception_message = f"{str(e.message)}"
             except:
                 exception_message = f"(unknown message: {e.__class__.__name__})"
+            print(exception_doc + exception_message)
             return (exception_doc + exception_message)
 
     def pretty_print_result(self, operation_res, storage="", in_browser=False):
         op_str = f"Last operation: {json.dumps(operation_res, indent=4)}\n\nPrevious storage: {storage}\n"
         result_str = (f"\nFeed: {self.instrument}\nTimestamp: {datetime.datetime.utcnow().isoformat()} \nResult: {op_str}\n")
-        print(result_str)
     
         return result_str if not in_browser else f"<pre>{result_str}</pre>"
 
@@ -53,10 +54,10 @@ class Feed:
 
 feed = Feed(key, oracle_address, instrument, env)
 
-# feed.start_feed()
+feed.start_feed()
 
-# app = Flask(__name__)
+app = Flask(__name__)
 
-# @app.route('/')
-# def index():
-#     return feed.pretty_print_result(*feed.update_oracle(), in_browser=True), 200
+@app.route('/')
+def index():
+    return feed.pretty_print_result(*feed.update_oracle(), in_browser=True), 200
