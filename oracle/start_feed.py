@@ -27,9 +27,15 @@ class Feed:
         """Fetch and parse data and update Oracle contract"""
         try:
             data = api.fetch_and_parse_price_data(self.instrument)
+            if (data is None or data[1] is None):
+                # If no data is fetched, do not update oracle
+                print("No data")
+                return "No data"
+
             result = self.oracle.update_value(data)
             print(self.pretty_print_result(*result, in_browser))
             return result
+
         except Exception as e:
             exception_doc = f"Exception: {str(e.__doc__)}"
             exception_message = None
