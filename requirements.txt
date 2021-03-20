@@ -9,7 +9,7 @@ fire==0.2.1
 Flask==1.1.1
 idna==2.9
 itsdangerous==1.1.0
-Jinja2==2.11.1
+Jinja2==2.11.3
 loguru==0.4.1
 MarkupSafe==1.1.1
 mnemonic==0.19
