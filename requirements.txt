@@ -1,6 +1,6 @@
 APScheduler==3.6.3
 base58==1.0.3
-certifi==2019.11.28
+certifi==2022.12.7
 cffi==1.14.0
 chardet==3.0.4
 Click==7.0
